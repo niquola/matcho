@@ -11,22 +11,40 @@
 (deftest matcho-test
   (testing "Matches"
     (match 1 1)
+    (match {:a 1 :b 2} {:a 1})
     (match [1] [1])
     (match  {:a 1 :b 2} {:a 1})
     (match  {:a 1 :b 2} {:a odd?})
     (match {:a 2} {:a pos?})
     (match  {:a [1 2 3]} {:a #(= 3 (count %))})
 
-    (match {:a {:b [{:c 1 :x 5} {:c 2 :x 6}]}}
-           {:a {:b [{:c 1} {:c 2}]}})
+    (match [1 2 3] [1 2])
 
-    (match*  {:a [1 2 3]} {:a ::pos-coll})
+    (match {:a {:b [{:c 1 :x 5} {:c 2 :x 6}]}}
+            {:a {:b [{:c 1} {:c 2}]}})
+
+    (match  {:a [1 2 3]} {:a ::pos-coll})
 
     #_(match {:a {:b [{:c 1 :x 5} {:c 2 :x 6}]}}
            {:a {:b #{{:c odd?}}}})
 
     )
 
+  (testing "Many predicates"
+    (match [{:a 1} {:b 2}]
+           #(= 2 (count %))
+           [{:a odd?} {:b even?}])
+
+    (match (match* [{:a 2} {:b 1}]
+             #(= 2 (count %))
+             [{:a odd?} {:b even?}])
+           [{:path [0 :a]} {:path [1 :b]}]))
+    
+  (testing "spec integration"
+
+    (match [1 2 3] (s/coll-of number?))
+    (match (match* [1 2 3] (s/coll-of even?))
+           [{:path []}]))
 
   (testing "Errors"
 
@@ -36,8 +54,8 @@
     (match (match*  {:a [1 -2 3]} {:a ::pos-coll})
            [{:path [:a]
              :expected "confirms to spec :matcho.core-test/pos-coll"
-             :but "In: [1] val: -2 fails spec: :matcho.core-test/pos-coll predicate: pos?\n"}])
-
+             :but map?}])
+    
     (match (match* {:a 2} {:a 1})
            [{:path [:a], :expected 1, :but 2}])
 

@@ -1,4 +1,4 @@
-(defproject matcho "0.1.0-RC1"
+(defproject matcho "0.1.0-RC2"
   :description "Simple matcher for clojure data driven tests"
   :url "http://github.com/niquola/matcho"
   :license {:name "Eclipse Public License"
