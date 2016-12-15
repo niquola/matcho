@@ -24,30 +24,28 @@
 
   (testing "Errors"
 
-    (is (= [{:path [:a],
-             :expected "#function[matcho.core-test/count-4?]"
-             :but [1 2 3]}]
-           (match*  {:a [1 2 3]} {:a count-4?})))
-    (is (= [] (match* {} [])))
+    (match (match*  {:a [1 2 3]} {:a count-4?})
+           [{:path [:a] :expected #"count" :but [1 2 3]}])
 
-    (is (= (match* {:a 2} {:a 1})
-           [{:path [:a], :expected "1", :but 2}] ))
 
-    (is (= (match* {:a 2} {:a neg?})
-           [{:path [:a], :expected "#function[clojure.core/neg?]", :but 2}]))
+    (match (match* {:a 2} {:a 1})
+           [{:path [:a], :expected "1", :but 2}])
 
-    (is (= (match* {} {:x ""})
-           [{:path [:x], :expected "\"\"", :but nil}] ))
+    (match (match* {:a 2} {:a neg?})
+           [{:path [:a], :expected #"neg" :but 2}])
 
-    (is (= (match* {:a [1]} {:a [2]})
-           [{:path [:a 0], :expected "2", :but 1}]))
+    (match (match* {} {:x ""})
+           [{:path [:x], :expected "\"\"", :but nil}] )
 
-    (is (= (match* {:a {:b "baaa"}}
+    (match (match* {:a [1]} {:a [2]})
+           [{:path [:a 0], :expected "2", :but 1}])
+
+    (match (match* {:a {:b "baaa"}}
                    {:a {:b #"^a"}} )
-           [{:path [:a :b], :expected "#\"^a\"", :but "baaa"}]))
+           [{:path [:a :b], :expected "#\"^a\"", :but "baaa"}])
 
-    (is (= (match* {:a [1 {:c 3}]} {:a [1 {:c 4}]})
-           [{:path [:a 1 :c], :expected "4", :but 3}]))
+    (match (match* {:a [1 {:c 3}]} {:a [1 {:c 4}]})
+           [{:path [:a 1 :c], :expected "4", :but 3}])
 
 
     )
