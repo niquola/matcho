@@ -50,7 +50,7 @@
          (seqable? example))
     (reduce (fn [errors [k v]]
               (let [path (conj path k)
-                    ev (get example k)]
+                    ev  (nth (vec example) k nil)]
                 (match-recur errors path ev v)))
             errors
             (map (fn [x i] [i x]) pattern (range)))

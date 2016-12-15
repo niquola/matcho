@@ -25,6 +25,9 @@
 
     (match  {:a [1 2 3]} {:a ::pos-coll})
 
+    (match '(1 2 3) [1 2 3])
+
+
     #_(match {:a {:b [{:c 1 :x 5} {:c 2 :x 6}]}}
            {:a {:b #{{:c odd?}}}})
 
@@ -47,6 +50,9 @@
            [{:path []}]))
 
   (testing "Errors"
+
+    (match (match* {:a 1} [1 2])
+           #(not (empty? %)))
 
     (match (match*  {:a [1 2 3]} {:a count-4?})
            [{:path [:a] :expected #"count" :but [1 2 3]}])
@@ -74,6 +80,7 @@
 
     (match (match* {:a [1 {:c 3}]} {:a [1 {:c 4}]})
            [{:path [:a 1 :c], :expected 4, :but 3}])
+1
 
     )
 
