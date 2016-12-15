@@ -45,6 +45,13 @@ One file library for data driven tests
 
   (is (= (match* {:a [1 {:c 3}]} {:a [1 {:c 4}]})
           [{:path [:a 1 :c], :expected "4", :but 3}])))
+          
+          
+(s/def ::pos-coll (s/coll-of pos?))
+(match (match*  {:a [1 -2 3]} {:a ::pos-coll})
+        [{:path [:a]
+          :expected "confirms to spec :matcho.core-test/pos-coll"
+          :but "In: [1] val: -2 fails spec: :matcho.core-test/pos-coll predicate: pos?\n"}])
 ```
 
 ## License

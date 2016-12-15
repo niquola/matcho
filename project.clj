@@ -1,5 +1,5 @@
-(defproject matcho "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+(defproject matcho "0.1.0-RC1"
+  :description "Simple matcher for clojure data driven tests"
   :url "http://github.com/niquola/matcho"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
