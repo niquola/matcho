@@ -68,16 +68,17 @@
        (is false (pr-str errors#))
        (is true))))
 
-(defmacro pattern-to-spec [pattern]
+(defmacro to-spec [pattern]
   (cond
     (symbol? pattern) pattern
+    (instance? clojure.lang.Cons pattern) pattern
     (list? pattern) pattern
     (instance? clojure.spec.Specize pattern)  (throw (Exception. "ups")) ;;pattern
     (fn? pattern) pattern
     (map? pattern)
     (let [nns (name (gensym "n"))
           nks (mapv #(keyword nns (name %)) (keys pattern))
-          ks  (map (fn [[k v]] (list 's/def (keyword nns (name k)) (list 'pattern-to-spec v))) pattern)]
+          ks  (map (fn [[k v]] (list 's/def (keyword nns (name k)) (list 'to-spec v))) pattern)]
       `(do ~@ks (s/keys :req-un ~nks)))
 
     (vector? pattern)
@@ -88,29 +89,29 @@
                  (if p
                    (recur (inc i)
                           ps
-                          (conj cats (keyword nns (str "i" i)) (list 'pattern-to-spec p)))
+                          (conj cats (keyword nns (str "i" i)) (list 'to-spec p)))
                    cats))]
-      `(s/cat ~@cats))
+      `(s/cat ~@cats :rest (s/* (constantly true))))
 
     :else `(conj #{} ~pattern)))
 
 (defmacro matcho* [example pattern]
-  `(let [sp# (pattern-to-spec ~pattern)]
-     (s/explain-data sp# ~example)))
+  `(let [sp# (to-spec ~pattern)]
+     (:clojure.spec/problems (s/explain-data sp# ~example))))
 
 (defmacro matcho [example pattern]
-  `(let [sp# (pattern-to-spec ~pattern)
+  `(let [sp# (to-spec ~pattern)
          res# (s/valid? sp#  ~example)
          es# (s/explain-str sp# ~example)]
      (is res# (str (pr-str ~example) "\n" es#))))
 
 (comment
   (matcho* [1 -2 3] [neg? neg? neg?])
-  (pattern-to-spec [neg? neg? neg?])
+  (to-spec [neg? neg? neg?])
 
   (matcho* [1 2] (s/coll-of keyword?))
 
-  (pattern-to-spec (s/coll-of keyword?))
+  (to-spec (s/coll-of keyword?))
 
 
   )

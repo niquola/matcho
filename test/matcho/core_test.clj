@@ -88,11 +88,32 @@
 
   (matcho [1 2 3] (s/coll-of int?))
 
-  (match
+  (matcho {:status 200
+            :body "hello"}
+           {:status #(< % 300)
+            :body #(not (empty? %))})
+  (matcho
+   (matcho* {:status 200
+             :body "hello"}
+            {:status 404
+             :body empty?})
+   [{:path [:status], :val 200 :in [:status]}
+    {:path [:body]  :val "hello"}])
+
+  (matcho [1 2 3] [1 2])
+
+  (matcho
+   (matcho* [1 2 3] [1 3])
+   [{:path [keyword?]  :val 2}])
+
+  (matcho
    (matcho* [{:a 2}]
             [{:a odd?}])
-   #:clojure.spec{:problems [{:path [keyword? :a], :pred '(pattern-to-spec odd?), :val 2}]})
+   [{:path [keyword? :a]  :val 2}])
 
-  (match (matcho* {:a -2 :b {:c {:d 5}}}
+  (matcho* [{:a 2}]
+           [{:a even?}])
+
+  (matcho (matcho* {:a -2 :b {:c {:d 5}}}
                   {:a neg? :b {:c {:d even?}}})
-         #:clojure.spec{:problems [{:path [:b :c :d]}]}))
+         [{:path [:b :c :d]}]))
