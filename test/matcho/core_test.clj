@@ -79,9 +79,20 @@
            [{:path [:a :b], :expected "Match regexp: ^a", :but "baaa"}])
 
     (match (match* {:a [1 {:c 3}]} {:a [1 {:c 4}]})
-           [{:path [:a 1 :c], :expected 4, :but 3}])
-1
+           [{:path [:a 1 :c], :expected 4, :but 3}])))
 
-    )
 
-  )
+
+(deftest test-matcho
+  (matcho {:a 1} {:a odd?})
+
+  (matcho [1 2 3] (s/coll-of int?))
+
+  (match
+   (matcho* [{:a 2}]
+            [{:a odd?}])
+   #:clojure.spec{:problems [{:path [keyword? :a], :pred '(pattern-to-spec odd?), :val 2}]})
+
+  (match (matcho* {:a -2 :b {:c {:d 5}}}
+                  {:a neg? :b {:c {:d even?}}})
+         #:clojure.spec{:problems [{:path [:b :c :d]}]}))
