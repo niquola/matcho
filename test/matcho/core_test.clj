@@ -1,6 +1,6 @@
 (ns matcho.core-test
   (:require [clojure.test :refer :all]
-            [clojure.spec :as s]
+            [clojure.spec.alpha :as s]
             [matcho.core :refer :all]))
 
 (defn count-4? [xs]
@@ -113,6 +113,7 @@
 
   (matcho* [{:a 2}]
            [{:a even?}])
+
 
   (matcho (matcho* {:a -2 :b {:c {:d 5}}}
                   {:a neg? :b {:c {:d even?}}})

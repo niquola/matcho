@@ -1,6 +1,6 @@
 (ns matcho.core
   (:require
-   [clojure.spec :as s]
+   [clojure.spec.alpha :as s]
    [clojure.test :refer :all]))
 
 (defn simple-value? [x]
@@ -10,7 +10,7 @@
 
 (defn match-compare [p s path]
   (cond
-    (instance? clojure.spec.Specize p)
+    (instance? clojure.spec.alpha.Specize p)
     (when-not (s/valid? p s)
       {:path path :expected (str "confirms to spec " p) :but (s/explain-data p s)})
 
@@ -63,17 +63,21 @@
   (reduce (fn [acc pattern] (match-recur acc [] example pattern)) [] patterns))
 
 (defmacro match [example & pattern]
-  `(let [errors# (match* ~example ~@pattern)]
+  `(let [example# ~example 
+         patterns# [~@pattern]
+         errors# (apply match* example# patterns#)]
      (if-not (empty? errors#)
-       (is false (pr-str errors#))
+       (is false (pr-str errors# example# patterns#))
        (is true))))
+
+(match {} 1)
 
 (defmacro to-spec [pattern]
   (cond
     (symbol? pattern) pattern
     (instance? clojure.lang.Cons pattern) pattern
     (list? pattern) pattern
-    (instance? clojure.spec.Specize pattern)  (throw (Exception. "ups")) ;;pattern
+    (instance? clojure.spec.alpha.Specize pattern)  (throw (Exception. "ups")) ;;pattern
     (fn? pattern) pattern
     (map? pattern)
     (let [nns (name (gensym "n"))
@@ -97,7 +101,7 @@
 
 (defmacro matcho* [example pattern]
   `(let [sp# (to-spec ~pattern)]
-     (:clojure.spec/problems (s/explain-data sp# ~example))))
+     (::s/problems (s/explain-data sp# ~example))))
 
 (defmacro matcho [example pattern]
   `(let [sp# (to-spec ~pattern)
