@@ -1,12 +1,10 @@
 (ns matcho.core
-  (:require
+ (:require
    [clojure.spec.alpha :as s]
    [clojure.test :refer :all]))
 
 (defn simple-value? [x]
   (not (or (map? x) (vector? x) (set? x))))
-
-(re-find #"rego" "reggie")
 
 (defn match-compare [p s path]
   (cond
@@ -30,11 +28,6 @@
 
         :else (when-not (= p s)
                 {:path path :expected p :but s})))
-
-(match-compare 1 2 [:path])
-(match-compare 1 ::key [:path])
-(match-compare ::key 1 [:path])
-(match-compare neg? 1 [:path])
 
 (defn match-recur [errors path example pattern]
   (cond
@@ -63,14 +56,12 @@
   (reduce (fn [acc pattern] (match-recur acc [] example pattern)) [] patterns))
 
 (defmacro match [example & pattern]
-  `(let [example# ~example 
+  `(let [example# ~example
          patterns# [~@pattern]
          errors# (apply match* example# patterns#)]
      (if-not (empty? errors#)
        (is false (pr-str errors# example# patterns#))
        (is true))))
-
-(match {} 1)
 
 (defmacro to-spec [pattern]
   (cond
@@ -110,6 +101,14 @@
      (is res# (str (pr-str ~example) "\n" es#))))
 
 (comment
+
+  (match-compare 1 2 [:path])
+  (match-compare 1 ::key [:path])
+  (match-compare ::key 1 [:path])
+  (match-compare neg? 1 [:path])
+
+  (match 1 [])
+
   (matcho* [1 -2 3] [neg? neg? neg?])
   (to-spec [neg? neg? neg?])
 
@@ -117,6 +116,4 @@
 
   (to-spec (s/coll-of keyword?))
 
-
   )
-
